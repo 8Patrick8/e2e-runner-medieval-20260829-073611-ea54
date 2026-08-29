@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mittelalter-Endless-Runner — Game Over</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="review-nav" data-od-id="review-nav">
+    <span class="review-nav__label">Screens</span>
+    <a class="review-nav__item" href="index.html">Start</a>
+    <a class="review-nav__item" href="game.html">Spiel</a>
+    <a class="review-nav__item is-active" href="gameover.html">Game Over</a>
+  </header>
+
+  <main class="stage-wrap" data-od-id="stage">
+    <div class="stage" data-od-id="game-stage">
+      <canvas id="scene" width="960" height="540" data-od-id="scene-canvas"></canvas>
+
+      <div class="overlay overlay--gameover" data-od-id="gameover-overlay">
+        <h2 class="gameover__title" data-od-id="gameover-title">Game Over</h2>
+        <p class="gameover__score">Punktestand: <strong>1420</strong></p>
+        <p class="gameover__high">Highscore: <strong>1420</strong>
+          <span class="gameover__record" data-od-id="go-record">NEUER REKORD</span>
+        </p>
+        <p class="gameover__hint">Neustart: Leertaste oder Klick</p>
+        <div class="gameover__actions">
+          <a class="btn" href="game.html" data-od-id="restart-btn">Neustart</a>
+          <a class="btn btn--ghost" href="index.html" data-od-id="back-start">Zum Start</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="scene.js"></script>
+  <script>
+  (function () {
+    var canvas = document.getElementById('scene');
+    var ctx = RunnerScene.initCanvas(canvas);
+    var offset = 840;
+
+    ctx.clearRect(0, 0, RunnerScene.W, RunnerScene.H);
+    RunnerScene.drawScene(ctx, offset);
+
+    var kx = Math.round(RunnerScene.W * 0.22);
+    RunnerScene.drawShadow(ctx, kx, RunnerScene.GROUND_Y, 22);
+    RunnerScene.drawShadow(ctx, kx + 46, RunnerScene.GROUND_Y, 22);
+    RunnerScene.drawShadow(ctx, kx + 320, RunnerScene.GROUND_Y, 28);
+    RunnerScene.drawBarrel(ctx, kx + 46, RunnerScene.GROUND_Y, 1);
+    RunnerScene.drawFence(ctx, kx + 320, RunnerScene.GROUND_Y, 1);
+    RunnerScene.drawKnight(ctx, kx, RunnerScene.GROUND_Y, 0, 1);
+  })();
+  </script>
+</body>
+</html>
