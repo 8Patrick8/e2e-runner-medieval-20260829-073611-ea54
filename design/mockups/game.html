@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mittelalter-Endless-Runner — Spiel</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="review-nav" data-od-id="review-nav">
+    <span class="review-nav__label">Screens</span>
+    <a class="review-nav__item" href="index.html">Start</a>
+    <a class="review-nav__item is-active" href="game.html">Spiel</a>
+    <a class="review-nav__item" href="gameover.html">Game Over</a>
+  </header>
+
+  <main class="stage-wrap" data-od-id="stage">
+    <div class="stage" data-od-id="game-stage">
+      <canvas id="scene" width="960" height="540" data-od-id="scene-canvas"></canvas>
+
+      <div class="hud" data-od-id="hud">
+        <div class="hud__group" data-od-id="hud-score">
+          <span class="hud__label">Punkte</span>
+          <span class="hud__value" id="hud-score">0</span>
+        </div>
+        <div class="hud__group hud__group--right" data-od-id="hud-best">
+          <span class="hud__label">Best</span>
+          <span class="hud__value" id="hud-best">0</span>
+        </div>
+      </div>
+
+      <p class="game-hint" id="game-hint" data-od-id="game-hint">Leertaste oder Klick/Tap = Springen</p>
+
+      <div class="overlay overlay--gameover is-hidden" data-od-id="gameover-overlay">
+        <h2 class="gameover__title" data-od-id="gameover-title">Game Over</h2>
+        <p class="gameover__score">Punktestand: <strong id="go-score">0</strong></p>
+        <p class="gameover__high">Highscore: <strong id="go-high">0</strong>
+          <span class="gameover__record is-hidden" id="go-record" data-od-id="go-record">NEUER REKORD</span>
+        </p>
+        <p class="gameover__hint">Neustart: Leertaste oder Klick</p>
+        <div class="gameover__actions">
+          <button type="button" class="btn" id="restart-btn" data-od-id="restart-btn">Neustart</button>
+          <a class="btn btn--ghost" href="index.html" data-od-id="back-start">Zum Start</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="scene.js"></script>
+  <script>
+  (function () {
+    var canvas = document.getElementById('scene');
+    var ctx = RunnerScene.initCanvas(canvas);
+    var W = RunnerScene.W;
+    var H = RunnerScene.H;
+    var GROUND_Y = RunnerScene.GROUND_Y;
+    var KNIGHT_X = Math.round(W * 0.22);
+    var HSCORE_KEY = 'medieval-runner-highscore';
+
+    var hudScore = document.getElementById('hud-score');
+    var hudBest = document.getElementById('hud-best');
+    var gameHint = document.getElementById('game-hint');
+    var overOverlay = document.getElementById('gameover-overlay');
+    var goScore = document.getElementById('go-score');
+    var goHigh = document.getElementById('go-high');
+    var goRecord = document.getElementById('go-record');
+    var restartBtn = document.getElementById('restart-btn');
+
+    function readHighscore() {
+      try {
+        var raw = localStorage.getItem(HSCORE_KEY);
+        if (raw === null) return 0;
+        var n = Number(raw);
+        return Number.isFinite(n) ? n : 0;
+      } catch (e) { return 0; }
+    }
+
+    function writeHighscore(n) {
+      try {
+        if (!Number.isFinite(n)) return;
+        localStorage.setItem(HSCORE_KEY, String(Math.floor(n)));
+      } catch (e) {}
+    }
+
+    var high = readHighscore();
+    hudBest.textContent = String(high);
+
+    var state = {};
+
+    function reset() {
+      state = {
+        offset: 0,
+        elapsed: 0,
+        speed: 3,
+        y: 0,
+        vy: 0,
+        grounded: true,
+        obstacles: [],
+        spawnTimer: 1800,
+        over: false
+      };
+      overOverlay.classList.add('is-hidden');
+    }
+
+    function jump() {
+      if (state.over) return;
+      if (state.grounded) {
+        state.vy = -13;
+        state.grounded = false;
+        gameHint.classList.add('is-faded');
+      }
+    }
+
+    function spawnObstacle() {
+      var type = Math.random() < 0.5 ? 'barrel' : 'fence';
+      state.obstacles.push({ type: type, x: W + 60 });
+    }
+
+    function collides(o) {
+      var kLeft = KNIGHT_X - 12;
+      var kRight = KNIGHT_X + 12;
+      var kTop = GROUND_Y - state.y - 40;
+      var kBottom = GROUND_Y - state.y;
+      var oLeft, oRight, oTop, oBottom;
+      if (o.type === 'barrel') {
+        oLeft = o.x - 12; oRight = o.x + 12; oTop = GROUND_Y - 28; oBottom = GROUND_Y;
+      } else {
+        oLeft = o.x - 16; oRight = o.x + 16; oTop = GROUND_Y - 24; oBottom = GROUND_Y;
+      }
+      return kLeft < oRight && kRight > oLeft && kTop < oBottom && kBottom > oTop;
+    }
+
+    function gameOver() {
+      state.over = true;
+      var score = Math.floor(state.offset / 10);
+      var isRecord = score > high;
+      if (isRecord) {
+        high = score;
+        writeHighscore(high);
+        hudBest.textContent = String(high);
+      }
+      goScore.textContent = String(score);
+      goHigh.textContent = String(high);
+      goRecord.classList.toggle('is-hidden', !isRecord);
+      overOverlay.classList.remove('is-hidden');
+    }
+
+    var last = performance.now();
+
+    function frame(now) {
+      var dt = Math.min(50, now - last);
+      last = now;
+
+      if (!state.over) {
+        state.elapsed += dt;
+        state.speed = 3 + Math.min(6, (state.elapsed / 1000) * 0.08);
+        state.offset += state.speed * dt * 0.06;
+
+        if (!state.grounded) {
+          state.y += state.vy;
+          state.vy += 0.9;
+          if (state.y <= 0) {
+            state.y = 0;
+            state.grounded = true;
+            state.vy = 0;
+          }
+        }
+
+        state.spawnTimer -= dt;
+        if (state.spawnTimer <= 0) {
+          spawnObstacle();
+          state.spawnTimer = 1500 + Math.random() * 900;
+        }
+
+        for (var i = state.obstacles.length - 1; i >= 0; i--) {
+          var o = state.obstacles[i];
+          o.x -= state.speed * dt * 0.06;
+          if (o.x < -60) state.obstacles.splice(i, 1);
+        }
+
+        for (var j = 0; j < state.obstacles.length; j++) {
+          if (collides(state.obstacles[j])) {
+            gameOver();
+            break;
+          }
+        }
+      }
+
+      ctx.clearRect(0, 0, W, H);
+      RunnerScene.drawScene(ctx, state.offset);
+
+      for (var k = 0; k < state.obstacles.length; k++) {
+        var ob = state.obstacles[k];
+        RunnerScene.drawShadow(ctx, ob.x, GROUND_Y, ob.type === 'barrel' ? 22 : 28);
+      }
+      RunnerScene.drawShadow(ctx, KNIGHT_X, GROUND_Y, 22);
+
+      var runFrame = Math.floor(now / 140) % 2;
+      RunnerScene.drawKnight(ctx, KNIGHT_X, GROUND_Y - state.y, state.grounded ? runFrame : 0, 1);
+
+      for (var m = 0; m < state.obstacles.length; m++) {
+        var om = state.obstacles[m];
+        if (om.type === 'barrel') RunnerScene.drawBarrel(ctx, om.x, GROUND_Y, 1);
+        else RunnerScene.drawFence(ctx, om.x, GROUND_Y, 1);
+      }
+
+      hudScore.textContent = String(Math.floor(state.offset / 10));
+
+      requestAnimationFrame(frame);
+    }
+
+    reset();
+    requestAnimationFrame(frame);
+
+    window.addEventListener('keydown', function (e) {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        if (state.over) reset(); else jump();
+      }
+    });
+
+    canvas.addEventListener('pointerdown', function () {
+      if (state.over) reset(); else jump();
+    });
+
+    restartBtn.addEventListener('click', function () {
+      reset();
+    });
+
+    overOverlay.addEventListener('click', function (e) {
+      if (e.target.closest('a.btn--ghost')) return;
+      reset();
+    });
+  })();
+  </script>
+</body>
+</html>
