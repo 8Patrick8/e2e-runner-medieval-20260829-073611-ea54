@@ -63,6 +63,10 @@ function frame(now) {
   updateObstacles(state, dt);
   if (checkCollision(state)) {
     state.phase = 'gameover';
+    if (state.score > state.highscore) {
+      state.highscore = state.score;
+    }
+    saveHighscore(state.highscore);
   }
   updateBackground(state, dt);
 
