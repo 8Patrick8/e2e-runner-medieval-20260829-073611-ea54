@@ -1,0 +1,236 @@
+:root {
+  --color-bg: #232b3b;
+  --color-fg: #f4e9d6;
+  --color-accent: #e05d3a;
+  --color-border: #2f2a26;
+  --color-muted: #8b99a6;
+  --space-0: 4px;
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --font-heading: 'Georgia', 'Times New Roman', serif;
+  --font-ui: 'Segoe UI', 'Trebuchet MS', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.review-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  width: 100%;
+  max-width: 1280px;
+}
+
+.review-nav__label {
+  color: var(--color-muted);
+  font-weight: 700;
+  margin-right: var(--space-1);
+}
+
+.review-nav__item {
+  color: var(--color-fg);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.review-nav__item:hover {
+  background: rgba(244, 233, 214, 0.12);
+}
+
+.review-nav__item.is-active {
+  background: var(--color-accent);
+  color: var(--color-fg);
+}
+
+.stage-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  width: 100%;
+}
+
+.stage {
+  position: relative;
+  width: 960px;
+  max-width: 100%;
+  height: 540px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  background: var(--color-bg);
+}
+
+#scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  font-family: var(--font-ui);
+}
+
+.hud__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(35, 43, 59, 0.55);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.hud__group--right {
+  text-align: right;
+}
+
+.hud__label {
+  font-size: 12px;
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.hud__value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-fg);
+}
+
+.game-hint {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 18px;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.is-faded {
+  opacity: 0.25;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-2);
+  background: rgba(35, 43, 59, 0.65);
+  padding: var(--space-4);
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+.gameover__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 44px;
+  color: var(--color-accent);
+  margin: 0;
+  text-shadow: 2px 2px 0 var(--color-border);
+}
+
+.gameover__score {
+  font-size: 24px;
+  margin: 0;
+}
+
+.gameover__high {
+  font-size: 18px;
+  margin: 0;
+}
+
+.gameover__record {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.gameover__hint {
+  color: var(--color-muted);
+  font-size: 18px;
+  margin: 0;
+}
+
+.gameover__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-fg);
+  border: 2px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.92);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-fg);
+}
