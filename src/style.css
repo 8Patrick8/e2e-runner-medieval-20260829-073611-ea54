@@ -1,0 +1,31 @@
+:root {
+  --color-bg: #232b3b;
+  --color-fg: #f4e9d6;
+  --color-accent: #e05d3a;
+  --color-border: #2f2a26;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game {
+  display: block;
+  touch-action: none;
+}
