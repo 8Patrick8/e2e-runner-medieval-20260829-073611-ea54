@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mittelalter-Endless-Runner — Start</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="review-nav" data-od-id="review-nav">
+    <span class="review-nav__label">Screens</span>
+    <a class="review-nav__item is-active" href="index.html">Start</a>
+    <a class="review-nav__item" href="game.html">Spiel</a>
+    <a class="review-nav__item" href="gameover.html">Game Over</a>
+  </header>
+
+  <main class="stage-wrap" data-od-id="stage">
+    <div class="stage" data-od-id="game-stage">
+      <canvas id="scene" width="960" height="540" data-od-id="scene-canvas"></canvas>
+
+      <div class="overlay overlay--start" data-od-id="start-overlay">
+        <h1 class="start__title" data-od-id="start-title">Mittelalter-Endless-Runner</h1>
+        <p class="start__subtitle" data-od-id="start-subtitle">Leertaste oder Klick/Tap</p>
+        <p class="start__highscore" data-od-id="start-highscore">Highscore: <strong id="high-value">—</strong></p>
+        <a class="btn btn--pulse" href="game.html" data-od-id="start-cta">Spiel starten</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="scene.js"></script>
+  <script>
+  (function () {
+    var canvas = document.getElementById('scene');
+    var ctx = RunnerScene.initCanvas(canvas);
+    var HSCORE_KEY = 'medieval-runner-highscore';
+
+    function readHighscore() {
+      try {
+        var raw = localStorage.getItem(HSCORE_KEY);
+        if (raw === null) return 1340;
+        var n = Number(raw);
+        return Number.isFinite(n) ? n : 0;
+      } catch (e) { return 1340; }
+    }
+
+    document.getElementById('high-value').textContent = String(readHighscore());
+
+    var offset = 0;
+    var last = performance.now();
+    function loop(now) {
+      var dt = Math.min(50, now - last);
+      last = now;
+      offset += dt * 0.03;
+      ctx.clearRect(0, 0, RunnerScene.W, RunnerScene.H);
+      RunnerScene.drawScene(ctx, offset);
+      var kx = Math.round(RunnerScene.W * 0.22);
+      RunnerScene.drawShadow(ctx, kx, RunnerScene.GROUND_Y, 22);
+      RunnerScene.drawKnight(ctx, kx, RunnerScene.GROUND_Y, Math.floor(now / 220) % 2, 1);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    var overlay = document.querySelector('.overlay--start');
+    function go() { window.location.href = 'game.html'; }
+    overlay.addEventListener('click', go);
+    window.addEventListener('keydown', function (e) {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        go();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
